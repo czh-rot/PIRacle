@@ -1,6 +1,6 @@
 
 
-# **PIRacle: High-Performance Private Retrieval using Homomorphic Encryption**
+# **PIRacle: A Private Retrieval System for Key-Value Stores Using Homomorphic Encryption**
 
 **PIRacle** is an efficient and high-performance **private information retrieval (PIR)** system designed for key-value stores. It leverages **homomorphic encryption (HE)** to enable private queries while preserving data confidentiality.
 
