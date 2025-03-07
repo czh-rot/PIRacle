@@ -8,6 +8,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${BINARY_LOCATION}/benchmark)
 set(EXECUTABLES
     bfv_benchmark benchmark_bfv.cu
     ckks_benchmark benchmark_ckks.cu
+    PIRacle_benchmark benchmark_PIRacle.cu
 )
 
 function(add_benchmark exe source)
