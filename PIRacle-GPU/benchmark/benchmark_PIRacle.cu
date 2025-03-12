@@ -61,17 +61,17 @@ int main(int argc, char* argv[])
     heongpu::HEDecryptor decryptor(context, secret_key);
     heongpu::HEArithmeticOperator operators(context, encoder);
 
-    // Easily, e assume the database contain N key-value items
+    // Easily, we assume the database contain N key-value items
     int m = 60;
     int w = 30;
     int t = 40;
     int n = poly_modulus_degrees;
     int dim1 = n / poly_modulus_degrees;
-    heongpu::HostVector<heongpu::Plaintext> Key(dim1 * m);
-    heongpu::HostVector<heongpu::Plaintext> Value(t);
+    std::vector<heongpu::Plaintext> Key(dim1 * m);
+    std::vector<heongpu::Plaintext> Value(t);
     auto mm = generateConstantWeightVectors(n, m, w); //m[n][m]
 
-    heongpu::HostVector<uint64_t> messagek(poly_modulus_degrees, 0);
+    std::vector<uint64_t> messagek(poly_modulus_degrees, 0);
     for (int i = 0; i < m; i++) {
         for (int j = 0; j < n; j++) {
             messagek[j] = static_cast<uint64_t>(mm[i][j]);
@@ -80,23 +80,23 @@ int main(int argc, char* argv[])
     }
     
     for (int i = 0; i < t; i++) {
-        heongpu::HostVector<uint64_t> messagev(poly_modulus_degrees, 1);
+        std::vector<uint64_t> messagev(poly_modulus_degrees, 1);
         encoder.encode(Value[i], messagev);
     }
     
     // Client: we assume the client wanna query the cwc[0];
     std::cout << "INFO: The client encrypts the key 0 and sends it to the server." << std::endl;
-    heongpu::HostVector<heongpu::Plaintext> pQ(m);
-    heongpu::HostVector<heongpu::Ciphertext> cQ(m); // encrypted query
+    std::vector<heongpu::Plaintext> pQ(m);
+    std::vector<heongpu::Ciphertext> cQ(m); // encrypted query
     for (int i = 0; i < m; i++) {
-        heongpu::HostVector<uint64_t> temp(poly_modulus_degrees, 0);
+        std::vector<uint64_t> temp(poly_modulus_degrees, 0);
         fill(temp.begin(), temp.end(), mm[0][i]);
         encoder.encode(pQ[i], temp);
         encryptor.encrypt(cQ[i], pQ[i]);
     }
 
     std::cout << "INFO: The server receives the encrypted query, and compute the I." << std::endl;
-    heongpu::HostVector<heongpu::Ciphertext> res(m);
+    std::vector<heongpu::Ciphertext> res(m);
     for (int i = 0; i < m; i++) {
         operators.multiply_plain_inplace(cQ[i], Key[i]);
     }
@@ -109,8 +109,8 @@ int main(int argc, char* argv[])
     heongpu::Ciphertext Dif(context);
     heongpu::Plaintext p_One(context);
     heongpu::Plaintext p_W(context);
-    heongpu::HostVector<uint64_t> cone(poly_modulus_degrees, 1);
-    heongpu::HostVector<uint64_t> cw(poly_modulus_degrees, w);
+    std::vector<uint64_t> cone(poly_modulus_degrees, 1);
+    std::vector<uint64_t> cw(poly_modulus_degrees, w);
     encoder.encode(p_One, cone);
     encoder.encode(p_W, cw);
     encryptor.encrypt(One, p_One);
@@ -124,7 +124,7 @@ int main(int argc, char* argv[])
     operators.sub(Dif, One, Dif);
 
     std::cout << "INFO: The server use the I to extract the target value." << std::endl;
-    heongpu::HostVector<heongpu::Ciphertext> cV(t);
+    std::vector<heongpu::Ciphertext> cV(t);
     for (int i = 0; i < t; i++) {
         operators.multiply_plain(Dif, Value[i], cV[i]);
     }
